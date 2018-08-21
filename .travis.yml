@@ -7,11 +7,9 @@ cache:
   directories:
     - vendor
 
-before_script:
+install:
   - sudo apt-get install libssh2
   - echo "extension=ssh2.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
-
-install:
   - travis_retry composer self-update
   - travis_retry composer install --no-interaction --no-suggest
 
