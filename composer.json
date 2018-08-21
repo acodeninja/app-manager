@@ -1,0 +1,34 @@
+{
+    "name": "acodeninja/app-manager",
+    "description": "Traits to manage deployments and feature work on multiple codebases and environments",
+    "type": "library",
+    "license": "MPL-2.0",
+    "authors": [
+        {
+            "name": "Lawrence",
+            "email": "lawrence@simplecat.software"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "AppManager\\": "src/",
+            "AppManagerTest\\": "tests/"
+        }
+    },
+    "minimum-stability": "stable",
+    "require": {
+        "php": "^7.2",
+        "ext-json": "*",
+        "ext-ssh2": "*",
+        "cpliakas/git-wrapper": "^2.0",
+        "phpseclib/phpseclib": "^2.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^7",
+        "spatie/phpunit-watcher": "^1.6"
+    },
+    "scripts": {
+        "test": "./vendor/bin/phpunit",
+        "test-watch": "./vendor/bin/phpunit-watcher watch --timeout 0"
+    }
+}
