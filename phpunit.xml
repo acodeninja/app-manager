@@ -22,6 +22,6 @@
         </whitelist>
     </filter>
     <php>
-        <env name="TEST_GIT_REPO" value="git@github.com:acodeninja/app-manager.git"/>
+        <env name="TEST_GIT_REPO" value="https://github.com/acodeninja/app-manager.git"/>
     </php>
 </phpunit>
