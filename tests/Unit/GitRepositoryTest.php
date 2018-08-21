@@ -112,4 +112,30 @@ class GitRepositoryTest extends TestCase
         $repository = $this->getRepository($this->git_repo_location);
         $this->assertInstanceOf(Repository::class, $repository);
     }
+
+    /**
+     * @throws CannotCloneGitRepositoryException
+     */
+    public function test__get_branch()
+    {
+        $repository = $this->cloneRepository(
+            getenv("TEST_GIT_REPO"),
+            $this->git_repo_location
+        );
+
+        $this->assertEquals("master", $repository->branch);
+    }
+
+    /**
+     * @throws CannotCloneGitRepositoryException
+     */
+    public function test__get_branches()
+    {
+        $repository = $this->cloneRepository(
+            getenv("TEST_GIT_REPO"),
+            $this->git_repo_location
+        );
+
+        $this->assertContains("master", $repository->branches);
+    }
 }
