@@ -3,8 +3,15 @@ language: php
 php:
   - 7.2
 
+cache:
+  directories:
+    - vendor
+
+before_script:
+  - sudo apt-get install libssh2
+  - echo "extension=ssh2.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+
 install:
-  - echo "extension=ssh2.so" >> `php --ini | grep "Loaded Configuration" | sed -e "s|.*:\s*||"`
   - travis_retry composer self-update
   - travis_retry composer install --no-interaction --no-suggest
 
