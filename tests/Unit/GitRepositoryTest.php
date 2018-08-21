@@ -138,4 +138,17 @@ class GitRepositoryTest extends TestCase
 
         $this->assertContains("master", $repository->branches);
     }
+
+    /**
+     * @throws CannotCloneGitRepositoryException
+     */
+    public function test__get_null()
+    {
+        $repository = $this->cloneRepository(
+            getenv("TEST_GIT_REPO"),
+            $this->git_repo_location
+        );
+
+        $this->assertNull($repository->non_existent);
+    }
 }
