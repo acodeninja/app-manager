@@ -8,6 +8,7 @@ use AppManager\Git\Exceptions\CannotInitializeGitRepositoryException;
 use AppManager\Git\InteractsWithGitRepository;
 use AppManager\Git\Repository;
 use AppManagerTest\TestCase;
+use PHPUnit\Framework\Error\Notice;
 
 class GitRepositoryTest extends TestCase
 {
@@ -23,6 +24,51 @@ class GitRepositoryTest extends TestCase
     public function tearDown()
     {
         ! file_exists($this->git_repo_location) || rmdir_r($this->git_repo_location);
+    }
+
+
+    /**
+     * @throws CannotInitializeGitRepositoryException
+     */
+    public function testInitializingARepository()
+    {
+        $repository = $this->initializeRepository($this->git_repo_location);
+
+        $this->assertDirectoryIsGitRepo($this->git_repo_location);
+        $this->assertInstanceOf(Repository::class, $repository);
+    }
+
+    /**
+     * @throws CannotInitializeGitRepositoryException
+     */
+    public function testThrowsExceptionWhenInitializingWithNoLocation()
+    {
+        $this->expectException(CannotInitializeGitRepositoryException::class);
+        $this->initializeRepository("");
+    }
+
+    /**
+     * @throws CannotInitializeGitRepositoryException
+     */
+    public function testThrowsExceptionWhenInitializingAnExistingRepository()
+    {
+        $this->expectException(CannotInitializeGitRepositoryException::class);
+        $this->initializeRepository($this->git_repo_location);
+        $this->initializeRepository($this->git_repo_location);
+    }
+
+    /**
+     * @throws CannotCloneGitRepositoryException
+     */
+    public function testCloningARepository()
+    {
+        $repository = $this->cloneRepository(
+            getenv("TEST_GIT_REPO"),
+            $this->git_repo_location
+        );
+
+        $this->assertDirectoryIsGitRepo($this->git_repo_location);
+        $this->assertInstanceOf(Repository::class, $repository);
     }
 
     /**
@@ -50,36 +96,14 @@ class GitRepositoryTest extends TestCase
     }
 
     /**
-     * @throws CannotCloneGitRepositoryException
-     */
-    public function testCloningARepository()
-    {
-        $repository = $this->cloneRepository(
-            getenv("TEST_GIT_REPO"),
-            $this->git_repo_location
-        );
-
-        $this->assertDirectoryIsGitRepo($this->git_repo_location);
-        $this->assertInstanceOf(Repository::class, $repository);
-    }
-
-    /**
      * @throws CannotInitializeGitRepositoryException
+     * @throws CannotFindGitRepositoryException
      */
-    public function testThrowsExceptionWhenInitializingWithNoLocation()
+    public function testGetsAKnownRepository()
     {
-        $this->expectException(CannotInitializeGitRepositoryException::class);
-        $this->initializeRepository("");
-    }
+        $this->initializeRepository($this->git_repo_location);
 
-    /**
-     * @throws CannotInitializeGitRepositoryException
-     */
-    public function testInitializingARepository()
-    {
-        $repository = $this->initializeRepository($this->git_repo_location);
-
-        $this->assertDirectoryIsGitRepo($this->git_repo_location);
+        $repository = $this->getRepository($this->git_repo_location);
         $this->assertInstanceOf(Repository::class, $repository);
     }
 
@@ -102,53 +126,28 @@ class GitRepositoryTest extends TestCase
     }
 
     /**
-     * @throws CannotInitializeGitRepositoryException
-     * @throws CannotFindGitRepositoryException
-     */
-    public function testGetsAKnownRepository()
-    {
-        $this->initializeRepository($this->git_repo_location);
-
-        $repository = $this->getRepository($this->git_repo_location);
-        $this->assertInstanceOf(Repository::class, $repository);
-    }
-
-    /**
      * @throws CannotCloneGitRepositoryException
      */
-    public function test__get_branch()
+    public function testGetBranch()
     {
         $repository = $this->cloneRepository(
             getenv("TEST_GIT_REPO"),
             $this->git_repo_location
         );
 
-        $this->assertEquals("master", $repository->branch);
+        $this->assertEquals("master", $repository->getBranch());
     }
 
     /**
      * @throws CannotCloneGitRepositoryException
      */
-    public function test__get_branches()
+    public function testGetBranches()
     {
         $repository = $this->cloneRepository(
             getenv("TEST_GIT_REPO"),
             $this->git_repo_location
         );
 
-        $this->assertContains("master", $repository->branches);
-    }
-
-    /**
-     * @throws CannotCloneGitRepositoryException
-     */
-    public function test__get_null()
-    {
-        $repository = $this->cloneRepository(
-            getenv("TEST_GIT_REPO"),
-            $this->git_repo_location
-        );
-
-        $this->assertNull($repository->non_existent);
+        $this->assertContains("master", $repository->getBranches());
     }
 }

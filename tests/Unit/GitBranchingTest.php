@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use AppManager\Git\Exceptions\CannotCheckoutGitBranchException;
+use AppManager\Git\Exceptions\CannotCheckoutGitBranchIllegalCharacterException;
 use AppManager\Git\Exceptions\CannotCloneGitRepositoryException;
 use AppManager\Git\InteractsWithGitRepository;
 use AppManager\Git\Repository;
@@ -41,6 +42,17 @@ class GitBranchingTest extends TestCase
 
     /**
      * @throws CannotCheckoutGitBranchException
+     * @throws CannotCheckoutGitBranchIllegalCharacterException
+     */
+    public function testCanCheckoutAnExistingBranch()
+    {
+        $this->git_repo->checkout("master");
+        $this->assertEquals("master", $this->git_repo->getBranch());
+    }
+
+    /**
+     * @throws CannotCheckoutGitBranchException
+     * @throws CannotCheckoutGitBranchIllegalCharacterException
      */
     public function testThrowsExceptionWhenCheckingOutEmptyBranch()
     {
@@ -50,6 +62,7 @@ class GitBranchingTest extends TestCase
 
     /**
      * @throws CannotCheckoutGitBranchException
+     * @throws CannotCheckoutGitBranchIllegalCharacterException
      */
     public function testThrowsExceptionWhenCheckingOutANonExistentBranch()
     {
@@ -59,10 +72,21 @@ class GitBranchingTest extends TestCase
 
     /**
      * @throws CannotCheckoutGitBranchException
+     * @throws CannotCheckoutGitBranchIllegalCharacterException
      */
-    public function testCanCheckoutAnExistingBranch()
+    public function testCanCreateANewBranch()
     {
-        $this->git_repo->checkout("master");
-        $this->assertEquals("master", $this->git_repo->branch);
+        $this->git_repo->checkout("new-branch", true);
+        $this->assertEquals("new-branch", $this->git_repo->getBranch());
+    }
+
+    /**
+     * @throws CannotCheckoutGitBranchException
+     * @throws CannotCheckoutGitBranchIllegalCharacterException
+     */
+    public function testThrowsExceptionWhenCheckingOutWithIllegalBranchName()
+    {
+        $this->expectException(CannotCheckoutGitBranchIllegalCharacterException::class);
+        $this->git_repo->checkout("illegal~branch", true);
     }
 }

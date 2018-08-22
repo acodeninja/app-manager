@@ -4,6 +4,8 @@ namespace AppManager\Git;
 
 
 use AppManager\Git\Exceptions\CannotCheckoutGitBranchException;
+use AppManager\Git\Exceptions\CannotCheckoutGitBranchIllegalCharacterException;
+use GitWrapper\GitException;
 use GitWrapper\GitWorkingCopy;
 
 /**
@@ -29,37 +31,51 @@ class Repository
     }
 
     /**
-     * @param string $name
-     * @return array|mixed|null
+     * @return array
      */
-    public function __get(string $name)
+    public function getBranches(): array
     {
-        switch ($name) {
-            case "branches":
-                return $this->cleanText(
-                    $this->workingCopy->getBranches()->getIterator()->getArrayCopy()
-                );
-                break;
-            case "branch":
-                return str_replace(
-                    "* ",
-                    "",
-                    $this->cleanText($this->workingCopy->branch())
-                );
-                break;
-        }
-
-        return null;
+        return $this->cleanBranchText(
+            $this->workingCopy
+                ->getBranches()
+                ->getIterator()
+                ->getArrayCopy()
+        );
     }
 
     /**
-     * @param $branch
-     * @throws CannotCheckoutGitBranchException
+     * @return string
      */
-    public function checkout($branch)
+    public function getBranch(): string
     {
-        if (empty($branch) || false === in_array($branch, $this->branches)) {
+        return $this->cleanBranchText(
+            $this->workingCopy
+                ->getWrapper()
+                ->git(
+                    "rev-parse --abbrev-ref HEAD",
+                    $this->workingCopy->getDirectory()
+                )
+        );
+    }
+
+    /**
+     * @param string $branch
+     * @param bool $new
+     * @throws CannotCheckoutGitBranchException
+     * @throws CannotCheckoutGitBranchIllegalCharacterException
+     */
+    public function checkout(string $branch, bool $new = false)
+    {
+        if (empty($branch) || (! in_array($branch, $this->getBranches()) && ! $new)) {
             throw new CannotCheckoutGitBranchException;
+        }
+
+        try {
+            $new ?
+                $this->workingCopy->checkoutNewBranch($branch) :
+                $this->workingCopy->checkout($branch);
+        } catch (GitException $gitException) {
+            throw new CannotCheckoutGitBranchIllegalCharacterException;
         }
     }
 
@@ -67,11 +83,11 @@ class Repository
      * @param array|string $subject
      * @return array|mixed
      */
-    private function cleanText($subject)
+    private function cleanBranchText($subject)
     {
         if (is_array($subject)) {
             foreach ($subject as $key => $item) {
-                $subject[$key] = $this->cleanText($item);
+                $subject[$key] = $this->cleanBranchText($item);
             }
 
             return $subject;
