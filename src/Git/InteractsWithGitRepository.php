@@ -39,7 +39,7 @@ trait InteractsWithGitRepository
      */
     public function initializeRepository(string $location) : Repository
     {
-        if (empty($location)) {
+        if (empty($location) || file_exists($location.'/.git')) {
             throw new CannotInitializeGitRepositoryException;
         }
 
