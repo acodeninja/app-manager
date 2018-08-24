@@ -9,7 +9,7 @@ cache:
 
 install:
   - sudo apt-get update
-  - sudo apt-get install libssh2-1-dev anisble
+  - sudo apt-get install libssh2-1-dev ansible
   - echo "extension=ssh2.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
   - travis_retry composer self-update
   - travis_retry composer install --no-interaction --no-suggest
