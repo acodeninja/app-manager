@@ -1,0 +1,8 @@
+## VARIABLES TEST_STRING ##
+---
+- hosts: all
+  vars:
+    test_string: "{{ lookup('env', 'TEST_STRING') }}"
+  tasks:
+    - name: echo on command line
+      command: echo {{ test_string }}
