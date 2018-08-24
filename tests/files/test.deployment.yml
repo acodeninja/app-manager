@@ -3,6 +3,7 @@
 - hosts: all
   vars:
     test_string: "{{ lookup('env', 'TEST_STRING') }}"
+    ansible_ssh_pipelining: true
   tasks:
     - name: echo on command line
       command: echo {{ test_string }}

@@ -85,7 +85,13 @@ class Deployment
             "-vvv"
         ];
 
-        $process = new Process(implode(" ", $commandParts), null, $this->variables);
+        $process = new Process(
+            implode(" ", $commandParts),
+            null,
+            array_merge($this->variables, [
+                'ANSIBLE_HOST_KEY_CHECKING' => 'False',
+            ])
+        );
         $process->start();
 
         foreach ($process as $type => $data) {
